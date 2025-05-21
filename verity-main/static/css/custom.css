@@ -1,0 +1,71 @@
+/* Custom styles for RealTalk news bias analyzer */
+
+.headline-card {
+    transition: transform 0.2s;
+    height: 100%;
+}
+
+.headline-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.bias-badge {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.emotional-word {
+    text-decoration: underline;
+    font-weight: 500;
+}
+
+.emotional-word.positive {
+    color: var(--bs-success);
+}
+
+.emotional-word.negative {
+    color: var(--bs-danger);
+}
+
+.emotional-word.controversial {
+    color: var(--bs-warning);
+}
+
+.source-badge {
+    font-size: 0.8rem;
+}
+
+.score-explanation {
+    font-size: 0.85rem;
+}
+
+.loading-spinner {
+    width: 3rem;
+    height: 3rem;
+}
+
+.news-source-image {
+    width: 24px;
+    height: 24px;
+    margin-right: 8px;
+    object-fit: contain;
+}
+
+/* Tooltip for emotional words */
+.word-tooltip {
+    cursor: help;
+    border-bottom: 1px dotted;
+}
+
+/* Empty state styling */
+.empty-state {
+    padding: 5rem 1rem;
+    text-align: center;
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: var(--bs-secondary);
+}

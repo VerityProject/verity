@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">
+                    <i class="fas fa-newspaper me-2"></i>
+                    Latest News Headlines
+                </h2>
+                <p class="card-text text-muted">
+                    Analyze news headlines for emotional bias and framing. Emotional words are <span class="emotional-word">highlighted</span>.
+                </p>
+                
+                <div class="d-flex gap-3 mt-3">
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-success me-2">Neutral</span>
+                        <small>Objective presentation</small>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-warning me-2">Slightly Biased</span>
+                        <small>Some emotional framing</small>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-danger me-2">Highly Biased</span>
+                        <small>Strong emotional language</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if news_data and news_data.articles %}
+    <!-- News headlines grid -->
+    <div id="news-container" class="row" data-current-page="{{ current_page }}" data-has-more="{{ news_data.hasMore|lower }}">
+        {% for article in news_data.articles %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card headline-card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span class="source-badge text-muted">{{ article.source.name }}</span>
+                        <span class="badge bg-{{ article.bias_color }} bias-badge">{{ article.bias_category }}</span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            {{ article.title }}
+                            {% if article.found_emotional_words %}
+                                <div class="mt-1">
+                                    <small class="text-muted">
+                                        Emotional words: 
+                                        {% for word in article.found_emotional_words %}
+                                            {% set word_type = "" %}
+                                            {% if word in news_analyzer.EMOTIONAL_WORDS.positive %}
+                                                {% set word_type = "positive" %}
+                                            {% elif word in news_analyzer.EMOTIONAL_WORDS.negative %}
+                                                {% set word_type = "negative" %}
+                                            {% elif word in news_analyzer.EMOTIONAL_WORDS.controversial %}
+                                                {% set word_type = "controversial" %}
+                                            {% endif %}
+                                            <span class="emotional-word {{ word_type }}" 
+                                                  data-bs-toggle="tooltip" 
+                                                  title="{{ word_type }} emotional word">
+                                                {{ word }}
+                                            </span>{% if not loop.last %}, {% endif %}
+                                        {% endfor %}
+                                    </small>
+                                </div>
+                            {% endif %}
+                        </h5>
+                        <p class="card-text text-truncate">{{ article.description }}</p>
+                        <div class="score-explanation mb-3">
+                            <small class="text-muted">
+                                Bias Score: {{ article.bias_score }}
+                                {% if article.found_emotional_words %}
+                                    (Found: {{ article.found_emotional_words|join(', ') }})
+                                {% endif %}
+                            </small>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">{{ article.publishedAt|format_datetime }}</small>
+                            <a href="{{ article.url }}" target="_blank" class="btn btn-sm btn-outline-primary">Read More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Load more button -->
+    <div class="text-center my-4">
+        <button id="load-more-btn" class="btn btn-outline-primary px-4 py-2 {% if not news_data.hasMore %}d-none{% endif %}">
+            Load More Headlines
+        </button>
+        <div id="loading-spinner" class="spinner-border text-primary loading-spinner d-none" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+{% else %}
+    <!-- Empty state -->
+    <div class="empty-state">
+        <div class="empty-state-icon">
+            <i class="fas fa-newspaper"></i>
+        </div>
+        <h3>No Headlines Available</h3>
+        <p class="text-muted">
+            We couldn't find any news headlines to analyze at the moment.
+            Please check back later or refresh the page.
+        </p>
+        <button class="btn btn-primary mt-3" onclick="location.reload()">
+            <i class="fas fa-sync-alt me-2"></i> Refresh
+        </button>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Add Flask filter replacement for JavaScript
+    function formatDateTime(datetime) {
+        if (!datetime) return 'Unknown date';
+        return new Date(datetime).toLocaleDateString();
+    }
+</script>
+{% endblock %}
